@@ -248,6 +248,18 @@
             <div class="metric-chip"><i class="hgi-stroke hgi-shield-check"></i> Dark <strong id="m-dark">Low</strong></div>
           </div>
 
+          <!-- Engine status indicators -->
+          <div class="cb-engines" id="engine-status-row" hidden>
+            <div class="engine-status">
+              <i class="hgi-stroke hgi-google"></i>
+              <span id="gemini-status-label">Gemini: checking...</span>
+            </div>
+            <div class="engine-status">
+              <i class="hgi-stroke hgi-search-02"></i>
+              <span id="parallel-status-label">Parallel: checking...</span>
+            </div>
+          </div>
+
           <div class="cb-actions">
             <button data-act="approve" type="button" class="cb-btn cb-approve" id="btn-approve">
               <i class="hgi-stroke hgi-checkmark-circle-02"></i> Approve → Canary

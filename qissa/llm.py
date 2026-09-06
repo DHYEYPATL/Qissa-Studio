@@ -16,7 +16,7 @@ except Exception:
 
 
 def model_name() -> str:
-    return os.environ.get("GEMINI_MODEL", "gemini-2.5-flash")
+    return os.environ.get("GEMINI_MODEL", "gemini-2.0-flash-exp")
 
 
 _CLIENT = None

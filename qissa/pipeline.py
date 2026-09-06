@@ -40,15 +40,21 @@ def run_desk(
     if rescued:
         state.steps.append(f"catalog_rescue:{rescued['id']}")
 
+    # Trend scouting with Parallel Search API
     try:
         state.trend = scout_trends(seed, state.genre)
-        state.engines["parallel"] = "parallel-web.search"
-        state.steps.append("trend_scout:parallel")
+        if "parallel-web" in (state.trend.engine or ""):
+            state.engines["parallel"] = "parallel-web.search"
+            state.steps.append("trend_scout:parallel_live")
+        else:
+            state.engines["parallel"] = state.trend.engine or "fallback"
+            state.steps.append("trend_scout:fallback")
     except Exception as exc:
         state.trend = _fallback_trend()
-        state.engines["parallel"] = f"fallback:{type(exc).__name__}"
-        state.steps.append("trend_scout:fallback")
+        state.engines["parallel"] = f"error:{type(exc).__name__}"
+        state.steps.append("trend_scout:error")
 
+    # Showrunning with Gemini
     state.status = "draft"
     state = showrun(state)
     state.steps.append("showrunner+writer")
@@ -100,7 +106,24 @@ def run_desk(
         vs_catalog="blocked",
     )
     state.status = "review"
-    state.verdict = "HOLD FOR HUMAN GATE — twin bench scored; canary blocked until human approval."
+    
+    # Build detailed verdict message showing which engines ran
+    engine_status = []
+    if "google-genai" in state.engines.get("gemini", ""):
+        engine_status.append("✓ Gemini (live)")
+    elif "offline" in state.engines.get("gemini", ""):
+        engine_status.append("⚠ Gemini (offline - no API key)")
+    elif "error" in state.engines.get("gemini", ""):
+        engine_status.append(f"✗ Gemini ({state.engines['gemini']})")
+    
+    if "parallel-web" in state.engines.get("parallel", ""):
+        engine_status.append("✓ Parallel Search (live)")
+    elif "offline" in state.engines.get("parallel", ""):
+        engine_status.append("⚠ Parallel Search (offline - no API key)")
+    elif "error" in state.engines.get("parallel", ""):
+        engine_status.append(f"✗ Parallel Search ({state.engines['parallel']})")
+    
+    state.verdict = f"HOLD FOR HUMAN GATE — twin bench scored; canary blocked. Engines: {'; '.join(engine_status)}"
     state.steps.append("human_gate_wait")
     return state
 

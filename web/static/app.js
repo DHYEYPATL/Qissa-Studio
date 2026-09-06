@@ -424,6 +424,51 @@ function paint(s) {
   document.getElementById("m-dialect").textContent = Math.round((s.dialect_score || 0.85) * 100) >= 75 ? "High" : "Low";
   document.getElementById("m-dark").textContent    = (s.dark_pattern_risk || "Low").includes("High") ? "High" : "Low";
 
+  // Engine status
+  const engineRow = document.getElementById("engine-status-row");
+  const geminiLabel = document.getElementById("gemini-status-label");
+  const parallelLabel = document.getElementById("parallel-status-label");
+  const geminiStatus = document.querySelector(".engine-status:nth-child(1)");
+  const parallelStatus = document.querySelector(".engine-status:nth-child(2)");
+  
+  if (s.engines) {
+    engineRow.hidden = false;
+    
+    // Gemini status
+    const geminiEngine = s.engines.gemini || "";
+    if (geminiEngine.includes("google-genai")) {
+      geminiLabel.textContent = "Gemini: ✓ Live (AI-generated script)";
+      geminiStatus?.classList.add("live");
+      geminiStatus?.classList.remove("error");
+    } else if (geminiEngine.includes("offline") || geminiEngine.includes("no_api_key")) {
+      geminiLabel.textContent = "Gemini: ⚠ Offline (using fallback packet)";
+      geminiStatus?.classList.remove("live", "error");
+    } else if (geminiEngine.includes("error") || geminiEngine.includes("api_error")) {
+      geminiLabel.textContent = `Gemini: ✗ Error (${geminiEngine.split(":")[1] || "failed"})`;
+      geminiStatus?.classList.add("error");
+      geminiStatus?.classList.remove("live");
+    } else {
+      geminiLabel.textContent = "Gemini: checking...";
+    }
+    
+    // Parallel status
+    const parallelEngine = s.engines.parallel || "";
+    if (parallelEngine.includes("parallel-web")) {
+      parallelLabel.textContent = "Parallel Search: ✓ Live (real trend data)";
+      parallelStatus?.classList.add("live");
+      parallelStatus?.classList.remove("error");
+    } else if (parallelEngine.includes("offline") || parallelEngine.includes("no_api_key")) {
+      parallelLabel.textContent = "Parallel: ⚠ Offline (using cached trends)";
+      parallelStatus?.classList.remove("live", "error");
+    } else if (parallelEngine.includes("error") || parallelEngine.includes("api_error")) {
+      parallelLabel.textContent = `Parallel: ✗ Error (${parallelEngine.split(":")[1] || "failed"})`;
+      parallelStatus?.classList.add("error");
+      parallelStatus?.classList.remove("live");
+    } else {
+      parallelLabel.textContent = "Parallel: checking...";
+    }
+  }
+
   // Rework
   const rb = document.getElementById("rework-brief-card");
   const rt = document.getElementById("rework-brief-text");

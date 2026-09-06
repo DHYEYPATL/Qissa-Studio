@@ -59,9 +59,19 @@ def _fallback_trend() -> TrendBrief:
 
 
 def scout_trends(seed: str, genre: str) -> TrendBrief:
+    from qissa.search import is_live_parallel
+    
     cache_key = f"{genre}::{seed[:60].strip().lower()}"
     if cache_key in _TREND_CACHE:
+        logger.info("Trend cache hit for: %s", cache_key[:50])
         return _TREND_CACHE[cache_key].model_copy(deep=True)
+
+    if not is_live_parallel():
+        logger.warning("Parallel API not configured - using offline trend fallback")
+        brief = _fallback_trend()
+        brief.engine = "offline:no_api_key"
+        _TREND_CACHE[cache_key] = brief
+        return brief
 
     objective = (
         "Find what serialized audio drama and Pocket-FM-class listeners "
@@ -76,14 +86,21 @@ def scout_trends(seed: str, genre: str) -> TrendBrief:
         f"{seed[:80]} similar audio series existing",
         "serialized fiction payoff stall mystery pile",
     ]
+    
     try:
         hits = parallel_search(objective, queries)
+        logger.info("Parallel search returned %d hits", len(hits))
     except Exception as exc:
-        logger.info("Parallel search offline fallback: %s", exc)
-        hits = []
+        logger.error("Parallel API call failed: %s - using offline fallback", exc, exc_info=True)
+        brief = _fallback_trend()
+        brief.engine = f"api_error:{type(exc).__name__}"
+        _TREND_CACHE[cache_key] = brief
+        return brief
 
     if not hits:
+        logger.warning("Parallel search returned zero hits - using fallback")
         brief = _fallback_trend()
+        brief.engine = "parallel:no_results"
         _TREND_CACHE[cache_key] = brief
         return brief
 
@@ -96,6 +113,7 @@ def scout_trends(seed: str, genre: str) -> TrendBrief:
         if hit.get("url"):
             cites.append({"title": title or hit["url"], "url": hit["url"], "excerpts": hit.get("excerpts", [])})
 
+    # Extract trend signals from real search results
     if any(w in blob for w in ("coin", "paywall", "expensive")):
         pains.append("coin walls after the hook")
     if any(w in blob for w in ("ad", "mid-roll", "midroll")):
@@ -123,8 +141,9 @@ def scout_trends(seed: str, genre: str) -> TrendBrief:
                 saturated = [str(x) for x in synth_data["tropes_saturated"]]
             if synth_data.get("listener_pains"):
                 pains = [str(x) for x in synth_data["listener_pains"]]
-    except Exception:
-        pass
+            logger.info("Gemini synthesis applied to Parallel results")
+    except Exception as exc:
+        logger.warning("Gemini synthesis failed, using raw Parallel extraction: %s", exc)
 
     brief = TrendBrief(
         tropes_rising=rising or list(_FALLBACK.tropes_rising),
@@ -134,9 +153,10 @@ def scout_trends(seed: str, genre: str) -> TrendBrief:
         listener_pains=pains or list(_FALLBACK.listener_pains),
         tone=_FALLBACK.tone,
         citations=cites[:8] if cites else list(_FALLBACK.citations),
-        engine="parallel-web.search",
+        engine="parallel-web.search" if hits else "offline",
     )
     _TREND_CACHE[cache_key] = brief
+    logger.info("Trend brief cached: %d rising, %d saturated, %d citations", len(brief.tropes_rising), len(brief.tropes_saturated), len(brief.citations))
     return brief
 
 
@@ -313,40 +333,52 @@ def _genre_packet(state: SeriesState) -> SeriesState:
 
 
 def showrun(state: SeriesState) -> SeriesState:
-    try:
-        from qissa.llm import generate_json, is_live_gemini
-        
-        if not is_live_gemini():
-            raise RuntimeError("Gemini API key not configured")
+    from qissa.llm import generate_json, is_live_gemini
+    
+    if not is_live_gemini():
+        logger.warning("Gemini API not configured - using offline fallback packet")
+        state.engines["gemini"] = "offline:no_api_key"
+        state = _genre_packet(state)
+        if not state.branches:
+            state.branches = _generate_rich_branches(state)
+        return state
 
-        refused = refused_instinct(state.genre)
-        contrast = contrastive_rule()
-        prompt = (
-            f"You are the Showrunner for a premium serialized audio drama.\n"
-            f"GENRE: {state.genre}\n"
-            f"STORY SEED: {state.seed}\n"
-            f"CRITICAL OWNED FACT (MUST be organically woven into dialogue/action/setting — do NOT ignore): {state.owned_fact or '(none provided)'}\n"
-            f"CONTRASTIVE RULE: {contrast}\n"
-            f"REFUSED CLICHÉ / DO NOT WRITE THIS: {refused}\n"
-            f"CONSTRAINTS:\n"
-            f"- Audio-only script format (NAME: text, SFX: sound effect, (private) whisper, (memory) echo).\n"
-            f"- Costly choice MUST happen before minute 5.\n"
-            f"- Tight exposition (< 1.5 minutes).\n"
-            f"- Pay one secret, leave one open thread for Season 1.\n\n"
-            f"Return a valid JSON object with keys:\n"
-            f"title (string, max 60 chars), logline (string), bible (string), "
-            f"characters (list of objects with name, goal, wound, speech, voice, secrets), "
-            f"spine (list of 4 episode logline strings), "
-            f"episode1_script (full audio screenplay with SFX cues), "
-            f"cliffhanger (string), first_turn_minute (float between 3.0 and 5.0), exposition_minutes (float between 0.5 and 1.5)."
-        )
+    refused = refused_instinct(state.genre)
+    contrast = contrastive_rule()
+    prompt = (
+        f"You are the Showrunner for a premium serialized audio drama.\n"
+        f"GENRE: {state.genre}\n"
+        f"STORY SEED: {state.seed}\n"
+        f"CRITICAL OWNED FACT (MUST be organically woven into dialogue/action/setting — do NOT ignore): {state.owned_fact or '(none provided)'}\n"
+        f"CONTRASTIVE RULE: {contrast}\n"
+        f"REFUSED CLICHÉ / DO NOT WRITE THIS: {refused}\n"
+        f"CONSTRAINTS:\n"
+        f"- Audio-only script format (NAME: text, SFX: sound effect, (private) whisper, (memory) echo).\n"
+        f"- Costly choice MUST happen before minute 5.\n"
+        f"- Tight exposition (< 1.5 minutes).\n"
+        f"- Pay one secret, leave one open thread for Season 1.\n\n"
+        f"Return a valid JSON object with keys:\n"
+        f"title (string, max 60 chars), logline (string), bible (string), "
+        f"characters (list of objects with name, goal, wound, speech, voice, secrets), "
+        f"spine (list of 4 episode logline strings), "
+        f"episode1_script (full audio screenplay with SFX cues), "
+        f"cliffhanger (string), first_turn_minute (float between 3.0 and 5.0), exposition_minutes (float between 0.5 and 1.5)."
+    )
+    
+    try:
         data = generate_json(prompt)
+        
+        # Validate we got meaningful data from Gemini
+        if not data or not isinstance(data, dict):
+            raise ValueError("Gemini returned empty or invalid JSON")
+        
         if data.get("title"):
             state.title = str(data["title"])[:80]
         if data.get("logline"):
             state.logline = str(data["logline"])
         if data.get("bible"):
             state.bible = str(data["bible"])
+        
         if data.get("characters") and isinstance(data["characters"], list):
             chars = []
             for c in data["characters"]:
@@ -361,8 +393,10 @@ def showrun(state: SeriesState) -> SeriesState:
                     ))
             if chars:
                 state.characters = chars
+        
         if data.get("spine") and isinstance(data["spine"], list):
             state.spine = [str(x) for x in data["spine"]]
+        
         if data.get("episode1_script"):
             state.episodes = [Episode(
                 number=1,
@@ -378,15 +412,18 @@ def showrun(state: SeriesState) -> SeriesState:
                     Beat(minute=11.2, label="cliff", text=str(data.get("cliffhanger") or "Cliffhanger"), emotion="dread", ad_safe=True),
                 ]
             )]
-        state.engines["gemini"] = "google-genai"
         
-        if not state.episodes:
-            state = _genre_packet(state)
+        state.engines["gemini"] = "google-genai"
+        logger.info("Gemini showrun successful - generated %d characters, %d episodes", len(state.characters), len(state.episodes))
+        
     except Exception as exc:
-        state.engines["gemini"] = f"fallback:{exc}"
+        logger.error("Gemini API call failed: %s - falling back to offline packet", exc, exc_info=True)
+        state.engines["gemini"] = f"api_error:{type(exc).__name__}"
         state = _genre_packet(state)
 
+    # Final safety checks
     if not state.episodes:
+        logger.warning("No episodes generated - applying genre fallback")
         state = _genre_packet(state)
 
     if not state.branches:
@@ -418,26 +455,47 @@ def apply_direction(state: SeriesState, note: str) -> SeriesState:
     else:
         patched = (before or "") + f"\n[DIRECTOR NOTE APPLIED (Cycle {state.cycle})]: {note}\n"
 
+    from qissa.llm import generate_text, is_live_gemini
+    
+    if not is_live_gemini():
+        logger.warning("Gemini not available for rewrite - using deterministic patch only")
+        state.engines["gemini_rewrite"] = "offline:no_api_key"
+        if state.episodes:
+            state.episodes[0].script = patched
+        state.before_after.append({
+            "cycle": str(state.cycle),
+            "note": note,
+            "before": before[:1500],
+            "after": patched[:1500]
+        })
+        state.branches = _generate_rich_branches(state)
+        return state
+    
     try:
-        from qissa.llm import generate_text, is_live_gemini
-        if is_live_gemini():
-            prompt = (
-                f"You are a serialized audio script doctor. Rewrite this Episode 1 audio screenplay to strictly apply the Director Note.\n"
-                f"GENRE: {state.genre}\n"
-                f"OWNED FACT TO PRESERVE: {state.owned_fact}\n"
-                f"DIRECTOR NOTE: {note}\n"
-                f"EXISTING SCRIPT:\n{before}\n\n"
-                f"Return only the full rewritten screenplay dialogue with SFX and character voice cues."
-            )
-            rewritten = generate_text(prompt)
-            if rewritten and len(rewritten) > 40:
-                patched = rewritten
-                state.engines["gemini"] = "google-genai-rewrite"
-                if state.episodes:
-                    state.episodes[0].first_turn_minute = min(state.episodes[0].first_turn_minute, 4.5)
-                    state.episodes[0].exposition_minutes = min(state.episodes[0].exposition_minutes, 1.2)
+        prompt = (
+            f"You are a serialized audio script doctor. Rewrite this Episode 1 audio screenplay to strictly apply the Director Note.\n"
+            f"GENRE: {state.genre}\n"
+            f"OWNED FACT TO PRESERVE: {state.owned_fact}\n"
+            f"DIRECTOR NOTE: {note}\n"
+            f"EXISTING SCRIPT:\n{before}\n\n"
+            f"Return only the full rewritten screenplay dialogue with SFX and character voice cues."
+        )
+        rewritten = generate_text(prompt)
+        
+        if rewritten and len(rewritten) > 40:
+            patched = rewritten
+            state.engines["gemini_rewrite"] = "google-genai-rewrite"
+            if state.episodes:
+                state.episodes[0].first_turn_minute = min(state.episodes[0].first_turn_minute, 4.5)
+                state.episodes[0].exposition_minutes = min(state.episodes[0].exposition_minutes, 1.2)
+            logger.info("Gemini script rewrite successful (%d chars)", len(rewritten))
+        else:
+            logger.warning("Gemini returned insufficient rewrite, using deterministic patch")
+            state.engines["gemini_rewrite"] = "insufficient_output"
+            
     except Exception as exc:
-        state.engines["gemini_rewrite"] = f"fallback:{exc}"
+        logger.error("Gemini rewrite failed: %s - using deterministic patch", exc, exc_info=True)
+        state.engines["gemini_rewrite"] = f"api_error:{type(exc).__name__}"
 
     if state.episodes:
         state.episodes[0].script = patched
