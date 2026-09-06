@@ -4,303 +4,441 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Qissa Studio — Serialized Audio Greenlight Desk</title>
-  <meta name="description" content="Human-in-the-loop retention desk for serialized audio fiction. Test pacing, digital twins, and structure before production spend." />
+  <meta name="description" content="Human-in-the-loop retention desk for serialized audio fiction." />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;1,6..72,400&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdn.hugeicons.com/font/hgi-stroke-rounded.css" />
   <link rel="stylesheet" href="/static/styles.css" />
 </head>
 <body>
-  <!-- Ambient Audio Texture -->
-  <div class="studio-grain"></div>
 
-  <!-- STUDIO TOP BAR -->
-  <header class="studio-header">
-    <div class="container header-inner">
-      <div class="brand-block">
-        <div class="studio-emblem">
-          <span class="emblem-glyph">QS</span>
-          <div class="emblem-indicator active" title="System Online"></div>
+  <!-- Background layers -->
+  <div class="bg-grid"></div>
+  <div class="bg-glow-1"></div>
+  <div class="bg-glow-2"></div>
+
+  <!-- ══════════════════════════════════════════════════
+       NAVBAR
+  ══════════════════════════════════════════════════════ -->
+  <header class="navbar">
+    <div class="navbar-inner">
+
+      <div class="nav-brand">
+        <div class="nav-logo">
+          <i class="hgi-stroke hgi-microphone-02"></i>
         </div>
-        <div class="brand-meta">
-          <h1 class="studio-title">Qissa Studio</h1>
-          <p class="studio-subtitle">Serialized Audio Greenlight Desk</p>
+        <div>
+          <div class="nav-name">Qissa Studio</div>
+          <div class="nav-tagline">Greenlight Desk</div>
         </div>
       </div>
-      
-      <div class="header-actions">
-        <button type="button" class="btn btn-secondary btn-sm" id="btn-new-lot">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+
+      <nav class="nav-center">
+        <button class="nav-pill active" id="nav-home" data-view="home">
+          <i class="hgi-stroke hgi-home-11"></i> Desk
+        </button>
+        <button class="nav-pill" id="nav-catalog" data-view="catalog">
+          <i class="hgi-stroke hgi-book-open-02"></i> Hit Catalog
+        </button>
+        <a href="/health" target="_blank" class="nav-pill">
+          <i class="hgi-stroke hgi-activity-02"></i> Health
+        </a>
+      </nav>
+
+      <div class="nav-right">
+        <button type="button" class="btn-outline-sm" id="btn-new-lot">
+          <i class="hgi-stroke hgi-add-square"></i>
           New Story Lot
         </button>
-        <a href="/api/catalog" target="_blank" rel="noreferrer" class="btn btn-ghost btn-sm" title="View catalog benchmark bars">
-          Hit Catalog
-        </a>
       </div>
+
     </div>
   </header>
 
-  <main class="container main-content">
+  <!-- ══════════════════════════════════════════════════
+       MAIN
+  ══════════════════════════════════════════════════════ -->
+  <main class="main-wrap">
 
-    <!-- VIEW 1: INTAKE FORM (SHOWN WHEN NO STORY IS LOADED) -->
-    <section class="studio-card intake-card" id="pitch-desk">
-      <div class="intake-header">
-        <div>
-          <h2 class="card-heading">Test a Story Pitch Before Voice Production Spend</h2>
-          <p class="card-subheading">Enter a story seed and lived detail. Evaluates retention against 7 digital listener twins.</p>
+    <!-- ─────────────── HOME VIEW ─────────────── -->
+    <div id="view-home">
+
+      <!-- HERO SECTION -->
+      <section class="hero">
+        <div class="hero-content">
+
+          <div class="hero-badge">
+            <span class="badge-dot"></span>
+            Human-in-the-Loop &nbsp;·&nbsp; 3% Canary Blocked Until Approval
+          </div>
+
+          <h1 class="hero-h1">
+            Greenlight stories<br/>
+            <span class="hero-gradient">before studio spend</span>
+          </h1>
+
+          <p class="hero-sub">
+            Enter a story seed and a lived detail. Seven digital listener twins
+            score retention, pacing, and dialect fidelity — before you book
+            a single voice actor.
+          </p>
+
+          <!-- 4-stat row -->
+          <div class="hero-stats">
+            <div class="stat-item">
+              <div class="stat-val">7</div>
+              <div class="stat-key">Listener Twins</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+              <div class="stat-val">4</div>
+              <div class="stat-key">Genre Buckets</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+              <div class="stat-val">$12k</div>
+              <div class="stat-key">Studio Risk Avoided</div>
+            </div>
+            <div class="stat-sep"></div>
+            <div class="stat-item">
+              <div class="stat-val">4</div>
+              <div class="stat-key">Rewrite Cycles</div>
+            </div>
+          </div>
+
         </div>
-        
-        <!-- Preset Examples Selector -->
-        <div class="preset-group">
-          <span class="preset-label">Presets:</span>
-          <div class="preset-buttons">
-            <button type="button" class="preset-btn active" data-preset="surat">Surat Kitchen</button>
-            <button type="button" class="preset-btn" data-preset="pune">Pune Radio</button>
-            <button type="button" class="preset-btn" data-preset="kodaikanal">Kodaikanal Rescue</button>
-            <button type="button" class="preset-btn" data-preset="whitefield">Bangalore Noir</button>
+      </section>
+
+      <!-- INTAKE CARD -->
+      <section class="pitch-desk" id="pitch-desk">
+
+        <!-- Card header row -->
+        <div class="pitch-header">
+          <div class="pitch-header-left">
+            <div class="pitch-icon">
+              <i class="hgi-stroke hgi-quill-write-02"></i>
+            </div>
+            <div>
+              <div class="pitch-title">Story Pitch Desk</div>
+              <div class="pitch-sub">Score retention against 7 digital listener twins before committing production budget.</div>
+            </div>
+          </div>
+          <div class="preset-row">
+            <span class="preset-row-label">Presets</span>
+            <button type="button" class="preset-chip active" data-preset="surat">Surat Kitchen</button>
+            <button type="button" class="preset-chip" data-preset="pune">Pune Radio</button>
+            <button type="button" class="preset-chip" data-preset="kodaikanal">Kodaikanal</button>
+            <button type="button" class="preset-chip" data-preset="whitefield">Bangalore Noir</button>
           </div>
         </div>
-      </div>
 
-      <form id="open" class="pitch-form">
-        <div class="form-grid">
-          
-          <div class="form-col-side">
-            <label class="studio-label" for="genre-select">
-              <span class="label-text">Genre Bucket</span>
+        <!-- Form -->
+        <form id="open" class="pitch-form">
+
+          <!-- Row 1: genre + seed -->
+          <div class="form-row-top">
+
+            <div class="form-field">
+              <label class="field-label" for="genre-select">
+                <i class="hgi-stroke hgi-layers-02"></i> Genre Bucket
+              </label>
+              <div class="select-wrap">
+                <select name="genre" id="genre-select" class="field-select">
+                  <option value="regional family drama">Regional Family Drama · 59% hit-bar</option>
+                  <option value="mythic thriller">Mythic Thriller · 58% hit-bar</option>
+                  <option value="campus dark romance">Campus Dark Romance · 67% hit-bar</option>
+                  <option value="investigative noir">Investigative Audio Noir · 56% hit-bar</option>
+                </select>
+                <i class="hgi-stroke hgi-arrow-down-01 select-caret"></i>
+              </div>
+            </div>
+
+            <div class="form-field form-field-grow">
+              <label class="field-label" for="seed-input">
+                <i class="hgi-stroke hgi-pen-tool-02"></i> Story Seed / Logline
+              </label>
+              <textarea name="seed" id="seed-input" rows="3" class="field-textarea" required
+                placeholder="A night-shift cook in Surat keeps her late mother's recipe book taped under a prep table. A food-show producer wants the pour as a clip."></textarea>
+            </div>
+
+          </div>
+
+          <!-- Row 2: owned fact -->
+          <div class="form-field">
+            <label class="field-label" for="fact-input">
+              <i class="hgi-stroke hgi-pin-02"></i> Owned Fact
+              <span class="field-hint">— the sensory anchor that makes this story irreplaceable</span>
             </label>
-            <div class="select-wrapper">
-              <select name="genre" id="genre-select" class="studio-select">
-                <option value="regional family drama">Regional Family Drama (59% hit-bar)</option>
-                <option value="mythic thriller">Mythic Thriller (58% hit-bar)</option>
-                <option value="campus dark romance">Campus Dark Romance (67% hit-bar)</option>
-                <option value="investigative noir">Investigative Audio Noir (56% hit-bar)</option>
-              </select>
-            </div>
+            <input type="text" name="owned_fact" id="fact-input" class="field-input" required
+              placeholder="The tape under the table still smells like asafetida from last Undhiyu season." />
           </div>
 
-          <div class="form-col-main">
-            <div class="field-wrap">
-              <label class="studio-label" for="seed-input">
-                <span class="label-text">Story Seed / Logline</span>
-              </label>
-              <textarea name="seed" id="seed-input" rows="3" class="studio-textarea" required placeholder="A night-shift cook in Surat keeps her late mother's recipe book taped under a prep table. A food-show producer wants the pour as a clip."></textarea>
+          <!-- Form footer -->
+          <div class="form-foot">
+            <div class="canary-lock">
+              <i class="hgi-stroke hgi-lock-02"></i>
+              <span>3% Canary is hard-blocked until human approval</span>
             </div>
-
-            <div class="field-wrap">
-              <label class="studio-label" for="fact-input">
-                <span class="label-text">Owned Fact (Lived Detail)</span>
-              </label>
-              <input type="text" name="owned_fact" id="fact-input" class="studio-input" required placeholder="The tape under the table still smells like asafetida from last Undhiyu season." />
-            </div>
-          </div>
-        </div>
-
-        <div class="form-footer">
-          <span class="gate-warning">🔒 3% Canary is blocked until human approval.</span>
-          <button type="submit" id="run" class="btn btn-primary btn-lg">
-            <span class="btn-spinner" id="btn-spin" hidden></span>
-            <span id="btn-text">Run Retention Diagnostics</span>
-          </button>
-        </div>
-      </form>
-
-      <!-- Live Loading Pipeline Status -->
-      <div class="pipeline-ticker-wrap" id="ticker-wrap" hidden>
-        <ol class="ticker-steps" id="ticker"></ol>
-      </div>
-    </section>
-
-    <!-- VIEW 2: ACTIVE STORY GREENLIGHT BOARD -->
-    <section id="board" class="production-board" hidden>
-      
-      <!-- 1. HERO COMMAND CENTER (THE ONLY THING VISIBLE IN THE FIRST 3 SECONDS) -->
-      <div class="hero-command-box" id="hero-command">
-        
-        <!-- Status Badge -->
-        <div class="hero-badge-row">
-          <span class="hero-status-pill" id="verdict-pill">
-            <span class="hero-status-dot" id="verdict-dot"></span>
-            <span id="verdict-label">HOLD FOR HUMAN GATE</span>
-          </span>
-        </div>
-        
-        <!-- Title & Genre on one line -->
-        <div class="hero-title-line">
-          <h2 class="hero-story-title" id="story-title">Night Kitchen, Surat</h2>
-          <span class="hero-dot-sep">·</span>
-          <span class="hero-story-genre" id="story-genre">Regional Family Drama</span>
-        </div>
-
-        <!-- Logline (1-2 lines max) -->
-        <p class="hero-story-logline" id="story-logline">A night-shift cook keeps her late mother's recipe book taped under a prep table. A food-show producer wants the pour as a clip.</p>
-        
-        <!-- Owned Fact (short line) -->
-        <div class="hero-owned-line" id="owned-fact-display">
-          Owned: <span id="story-fact">smells like asafetida</span>
-        </div>
-
-        <!-- Single Compact Metrics Strip (No cards, just clean text numbers) -->
-        <div class="hero-metrics-strip" id="hero-metrics-strip">
-          <span>Twin <strong id="m-twin">--</strong></span>
-          <span class="strip-sep">·</span>
-          <span>Turn <strong id="m-turn">--</strong></span>
-          <span class="strip-sep">·</span>
-          <span>Canary <strong id="m-canary">Blocked</strong></span>
-          <span class="strip-sep">·</span>
-          <span>Payoff <strong id="m-payoff">--</strong></span>
-          <span class="strip-sep">·</span>
-          <span>Dialect <strong id="m-dialect">High</strong></span>
-          <span class="strip-sep">·</span>
-          <span>Dark <strong id="m-dark">Low</strong></span>
-        </div>
-
-        <!-- Four Action Buttons Only (No sentences below them) -->
-        <div class="hero-buttons-row">
-          <button data-act="approve" type="button" class="btn btn-hero btn-approve" id="btn-approve">Approve → Canary</button>
-          <button type="button" class="btn btn-hero btn-direct" id="btn-toggle-direct">Direct</button>
-          <button data-act="reject" type="button" class="btn btn-hero btn-reject" id="btn-reject">Archive</button>
-          <button type="button" class="btn btn-hero btn-packet" id="btn-copy-packet">
-            <span id="copy-packet-label">Packet</span>
-          </button>
-        </div>
-
-      </div>
-
-      <!-- DIRECT REWRITE DRAWER (EXPANDABLE) -->
-      <div class="direct-drawer-box" id="direct-drawer" hidden>
-        <div class="drawer-top">
-          <span class="drawer-title">✍️ Director Note</span>
-          <button type="button" class="btn-close-clean" id="btn-close-direct">✕ Close</button>
-        </div>
-        <div class="drawer-chips">
-          <button type="button" class="chip-btn" data-note="Move the costly choice earlier before minute 4.">"Costly choice before min 4"</button>
-          <button type="button" class="chip-btn" data-note="Sharpen Gujarati mother-tongue dialogue in the kitchen.">"Sharpen local dialect"</button>
-          <button type="button" class="chip-btn" data-note="Pay the secret about the invoice immediately on mic.">"Pay invoice secret on mic"</button>
-        </div>
-        <div class="drawer-input-area">
-          <textarea id="note" class="drawer-textarea" rows="2" placeholder="Type or dictate director note..."></textarea>
-          <div class="drawer-buttons-bar">
-            <button type="button" id="btn-voice-dictate" class="btn btn-ghost btn-sm">
-              <span id="voice-dictate-label">🎤 Speak</span>
+            <button type="submit" id="run" class="btn-run" disabled>
+              <span class="btn-run-spinner hidden" id="btn-spin">
+                <i class="hgi-stroke hgi-loading-03 spin"></i>
+              </span>
+              <i class="hgi-stroke hgi-play-circle" id="run-icon"></i>
+              <span id="btn-text">Run Retention Diagnostics</span>
             </button>
-            <button data-act="direct" type="button" class="btn btn-primary btn-sm" id="btn-submit-direct">
-              Apply Note & Rewrite →
+          </div>
+
+        </form>
+
+        <!-- Pipeline ticker -->
+        <div class="ticker-box" id="ticker-wrap" hidden>
+          <div class="ticker-head">
+            <i class="hgi-stroke hgi-cpu-02"></i>
+            <span>Pipeline running</span>
+            <span class="ticker-pulse"></span>
+          </div>
+          <ol class="ticker-list" id="ticker"></ol>
+        </div>
+
+        <!-- Feature pills row at bottom of card -->
+        <div class="feature-row">
+          <div class="feat-pill"><i class="hgi-stroke hgi-user-multiple-02"></i> 7 Listener Twins</div>
+          <div class="feat-pill"><i class="hgi-stroke hgi-chart-line-data-03"></i> Retention Curve</div>
+          <div class="feat-pill"><i class="hgi-stroke hgi-shield-check"></i> Dark Pattern Audit</div>
+          <div class="feat-pill"><i class="hgi-stroke hgi-search-02"></i> Near-Dupe Scan</div>
+          <div class="feat-pill"><i class="hgi-stroke hgi-translate"></i> Dialect Check</div>
+        </div>
+
+      </section>
+
+      <!-- ══════════════════════════════════════════════════
+           GREENLIGHT BOARD (shown after run)
+      ══════════════════════════════════════════════════════ -->
+      <section id="board" class="board" hidden>
+
+        <!-- Command box -->
+        <div class="command-box">
+          <div class="cb-badge-row">
+            <span class="status-pill" id="verdict-pill">
+              <span class="status-dot" id="verdict-dot"></span>
+              <span id="verdict-label">HOLD FOR HUMAN GATE</span>
+            </span>
+          </div>
+
+          <div class="cb-title-row">
+            <h2 class="cb-title" id="story-title">Night Kitchen, Surat</h2>
+            <span class="cb-sep">·</span>
+            <span class="cb-genre" id="story-genre">Regional Family Drama</span>
+          </div>
+
+          <p class="cb-logline" id="story-logline"></p>
+
+          <div class="cb-owned" id="owned-fact-display">
+            <i class="hgi-stroke hgi-pin-02"></i>
+            Owned: <span id="story-fact"></span>
+          </div>
+
+          <div class="cb-metrics" id="hero-metrics-strip">
+            <div class="metric-chip"><i class="hgi-stroke hgi-user-multiple-02"></i> Twin <strong id="m-twin">--</strong></div>
+            <div class="metric-chip"><i class="hgi-stroke hgi-clock-02"></i> Turn <strong id="m-turn">--</strong></div>
+            <div class="metric-chip"><i class="hgi-stroke hgi-user-check-02"></i> Canary <strong id="m-canary">Blocked</strong></div>
+            <div class="metric-chip"><i class="hgi-stroke hgi-check-list-02"></i> Payoff <strong id="m-payoff">--</strong></div>
+            <div class="metric-chip"><i class="hgi-stroke hgi-translate"></i> Dialect <strong id="m-dialect">High</strong></div>
+            <div class="metric-chip"><i class="hgi-stroke hgi-shield-check"></i> Dark <strong id="m-dark">Low</strong></div>
+          </div>
+
+          <div class="cb-actions">
+            <button data-act="approve" type="button" class="cb-btn cb-approve" id="btn-approve">
+              <i class="hgi-stroke hgi-checkmark-circle-02"></i> Approve → Canary
+            </button>
+            <button type="button" class="cb-btn cb-direct" id="btn-toggle-direct">
+              <i class="hgi-stroke hgi-quill-write-02"></i> Direct
+            </button>
+            <button data-act="reject" type="button" class="cb-btn cb-archive" id="btn-reject">
+              <i class="hgi-stroke hgi-archive-02"></i> Archive
+            </button>
+            <button type="button" class="cb-btn cb-packet" id="btn-copy-packet">
+              <i class="hgi-stroke hgi-copy-02"></i>
+              <span id="copy-packet-label">Packet</span>
             </button>
           </div>
         </div>
-      </div>
 
-      <!-- ARCHIVE REWORK BRIEF (IF ARCHIVED) -->
-      <div class="rework-alert-box" id="rework-brief-card" hidden>
-        <div class="rework-alert-header">
-          <strong>📁 Writer Room Rework Brief</strong>
+        <!-- Director drawer -->
+        <div class="director-drawer" id="direct-drawer" hidden>
+          <div class="drawer-head">
+            <span class="drawer-label"><i class="hgi-stroke hgi-quill-write-02"></i> Director Note</span>
+            <button type="button" class="drawer-close" id="btn-close-direct">
+              <i class="hgi-stroke hgi-cancel-01"></i>
+            </button>
+          </div>
+          <div class="drawer-chips">
+            <button type="button" class="dchip" data-note="Move the costly choice earlier before minute 4.">
+              <i class="hgi-stroke hgi-clock-02"></i> Costly choice before min 4
+            </button>
+            <button type="button" class="dchip" data-note="Sharpen Gujarati mother-tongue dialogue in the kitchen.">
+              <i class="hgi-stroke hgi-translate"></i> Sharpen local dialect
+            </button>
+            <button type="button" class="dchip" data-note="Pay the secret about the invoice immediately on mic.">
+              <i class="hgi-stroke hgi-checkmark-circle-02"></i> Pay invoice secret on mic
+            </button>
+          </div>
+          <textarea id="note" class="drawer-textarea" rows="2" placeholder="Type or speak your director note…"></textarea>
+          <div class="drawer-foot">
+            <button type="button" id="btn-voice-dictate" class="btn-ghost-sm">
+              <i class="hgi-stroke hgi-microphone-02"></i>
+              <span id="voice-dictate-label">Speak</span>
+            </button>
+            <button data-act="direct" type="button" class="btn-primary-sm" id="btn-submit-direct">
+              <i class="hgi-stroke hgi-arrow-right-02"></i> Apply &amp; Rewrite
+            </button>
+          </div>
         </div>
-        <pre class="rework-alert-content" id="rework-brief-text"></pre>
-      </div>
 
-      <!-- 2. TOP DIAGNOSES (SILENT & COMPACT) -->
-      <div class="diagnoses-clean-box" id="dx-highlight-box">
-        <div class="dx-clean-header">
-          <strong>⚠️ Top Issues</strong>
-          <button type="button" class="btn-link-action" id="btn-toggle-all-dx">Show all</button>
-        </div>
-        <ul class="dx-clean-list" id="dx-list"></ul>
-      </div>
-
-      <!-- 3. THREE TABS (REDUCED CHROME) -->
-      <div class="tabs-clean-wrapper">
-        <div class="tabs-clean-nav">
-          <button class="tab-clean-btn active" data-tab="twins">Twins</button>
-          <button class="tab-clean-btn" data-tab="script">Script</button>
-          <button class="tab-clean-btn" data-tab="production">Production</button>
+        <!-- Rework brief -->
+        <div class="rework-box" id="rework-brief-card" hidden>
+          <div class="rework-head"><i class="hgi-stroke hgi-folder-02"></i> Writer Room Rework Brief</div>
+          <pre class="rework-body" id="rework-brief-text"></pre>
         </div>
 
-        <!-- TAB 1: TWINS -->
-        <div class="tab-clean-panel active" id="tab-twins">
-          <div class="retention-curve-box">
-            <div class="curve-head">
+        <!-- Diagnoses -->
+        <div class="dx-box" id="dx-highlight-box">
+          <div class="dx-head">
+            <div class="dx-head-left">
+              <i class="hgi-stroke hgi-alert-02"></i>
+              <strong>Top Structural Issues</strong>
+            </div>
+            <button type="button" class="btn-link" id="btn-toggle-all-dx">
+              Show all <i class="hgi-stroke hgi-arrow-down-01"></i>
+            </button>
+          </div>
+          <ul class="dx-list" id="dx-list"></ul>
+        </div>
+
+        <!-- Tabs -->
+        <div class="tabs-wrap">
+          <div class="tabs-nav">
+            <button class="tab-btn active" data-tab="twins">
+              <i class="hgi-stroke hgi-user-multiple-02"></i> Twins
+            </button>
+            <button class="tab-btn" data-tab="script">
+              <i class="hgi-stroke hgi-document-02"></i> Script
+            </button>
+            <button class="tab-btn" data-tab="production">
+              <i class="hgi-stroke hgi-settings-02"></i> Production
+            </button>
+          </div>
+
+          <!-- TWINS TAB -->
+          <div class="tab-panel active" id="tab-twins">
+            <div class="curve-box">
+              <div class="curve-box-head">
+                <div>
+                  <strong>Episode 1 Predicted Retention Curve</strong>
+                  <span class="curve-sub">Minute drop-off vs. Genre Hit Bar</span>
+                </div>
+                <span class="tag-pill" id="curve-hit-bar-tag">Hit Bar: 59%</span>
+              </div>
+              <div class="curve-strip" id="curve-visual-strip"></div>
+            </div>
+            <div class="table-scroll">
+              <table class="data-table" id="twins-table">
+                <thead>
+                  <tr>
+                    <th>Persona</th><th>Score</th><th>Drop</th><th>Ep 1</th><th>Coin</th><th>Reason</th>
+                  </tr>
+                </thead>
+                <tbody id="twins-table-body"></tbody>
+              </table>
+            </div>
+          </div>
+
+          <!-- SCRIPT TAB -->
+          <div class="tab-panel" id="tab-script">
+            <div class="script-grid">
               <div>
-                <strong>Episode 1 Predicted Retention Curve</strong>
-                <span class="curve-sub">Minute drop-off vs. Genre Hit Bar</span>
+                <div class="panel-label" id="ep1-title">Episode 1 Script (12m)</div>
+                <div class="screenplay" id="script-formatted"></div>
               </div>
-              <span class="badge-tag" id="curve-hit-bar-tag">Hit Bar: 59%</span>
-            </div>
-            <div class="curve-visual-strip" id="curve-visual-strip"></div>
-          </div>
-
-          <div class="table-responsive">
-            <table class="studio-table" id="twins-table">
-              <thead>
-                <tr>
-                  <th>Persona</th>
-                  <th>Score</th>
-                  <th>Drop</th>
-                  <th>Ep 1</th>
-                  <th>Coin</th>
-                  <th>Reason</th>
-                </tr>
-              </thead>
-              <tbody id="twins-table-body"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <!-- TAB 2: SCRIPT -->
-        <div class="tab-clean-panel" id="tab-script">
-          <div class="script-diff-grid">
-            <div class="script-column">
-              <div class="column-header">
-                <strong id="ep1-title">Episode 1 Script (12m)</strong>
-              </div>
-              <div class="screenplay-box" id="script-formatted"></div>
-            </div>
-
-            <div class="diff-column">
-              <div class="column-header">
-                <strong>Director Patch Diff</strong>
-                <span class="badge-tag" id="diff-cycle-tag">Patch</span>
-              </div>
-              <div class="patch-diff-box" id="ba-diff">
-                <p class="empty-state">No rewrite applied yet. Use <strong>Direct</strong> to patch script.</p>
+              <div>
+                <div class="panel-label" style="display:flex;justify-content:space-between;">
+                  Director Patch Diff <span class="tag-pill" id="diff-cycle-tag">No Patch</span>
+                </div>
+                <div class="diff-box" id="ba-diff">
+                  <p class="empty-hint">No rewrite yet. Use <strong>Direct</strong> to patch.</p>
+                </div>
               </div>
             </div>
           </div>
-        </div>
 
-        <!-- TAB 3: PRODUCTION -->
-        <div class="tab-clean-panel" id="tab-production">
-          <div class="production-grid">
-            
-            <div class="prod-card">
-              <strong>Payoff Ledger</strong>
-              <p class="prod-sub" id="ledger-ratio-line">Ratio: 50% · Pay one mystery. Leave one open.</p>
-              <div class="threads-list" id="ledger-threads"></div>
+          <!-- PRODUCTION TAB -->
+          <div class="tab-panel" id="tab-production">
+            <div class="prod-grid">
+              <div class="prod-panel">
+                <div class="prod-panel-head"><i class="hgi-stroke hgi-check-list-02"></i> Payoff Ledger</div>
+                <div class="prod-sub" id="ledger-ratio-line">Ratio: 50% · Pay one. Leave one.</div>
+                <div class="threads" id="ledger-threads"></div>
+              </div>
+              <div class="prod-panel">
+                <div class="prod-panel-head"><i class="hgi-stroke hgi-git-branch"></i> Episode 2 Branches</div>
+                <div id="branches-list"></div>
+              </div>
+              <div class="prod-panel">
+                <div class="prod-panel-head"><i class="hgi-stroke hgi-microphone-02"></i> Voice Booth Spec</div>
+                <div id="characters-list"></div>
+                <div id="booth-details"></div>
+              </div>
             </div>
+          </div>
 
-            <div class="prod-card">
-              <strong>Episode 2 Branches</strong>
-              <div class="branches-grid" id="branches-list"></div>
-            </div>
+        </div><!-- /tabs-wrap -->
+      </section><!-- /board -->
 
-            <div class="prod-card">
-              <strong>Voice Booth Spec</strong>
-              <div class="characters-stack" id="characters-list"></div>
-              <div class="booth-rules" id="booth-details"></div>
-            </div>
+    </div><!-- /view-home -->
 
+    <!-- ─────────────── CATALOG VIEW ─────────────── -->
+    <div id="view-catalog" hidden>
+      <div class="catalog-hd">
+        <div class="catalog-hd-left">
+          <div class="pitch-icon"><i class="hgi-stroke hgi-book-open-02"></i></div>
+          <div>
+            <div class="pitch-title">Hit Catalog &amp; Benchmark Bars</div>
+            <div class="pitch-sub">Graduation uses the hit bar from this genre — flops inform diagnosis, they never lower the hurdle.</div>
           </div>
         </div>
-
+        <div class="cat-filters" id="catalog-filter-group">
+          <button class="cat-filter active" data-filter="all">All</button>
+          <button class="cat-filter" data-filter="hit"><i class="hgi-stroke hgi-star-02"></i> Hits</button>
+          <button class="cat-filter" data-filter="stalled"><i class="hgi-stroke hgi-alert-02"></i> Stalled</button>
+        </div>
       </div>
 
-    </section>
+      <div class="cat-bars-row" id="catalog-bars-row"></div>
+
+      <div class="cat-grid" id="catalog-cards-grid">
+        <div class="cat-loading">
+          <i class="hgi-stroke hgi-loading-03 spin"></i> Loading catalog…
+        </div>
+      </div>
+    </div>
+
   </main>
 
-  <footer class="studio-footer">
-    <div class="container footer-inner">
-      <div><strong>Qissa Studio</strong> · Serialized Audio Greenlight Desk</div>
-      <div class="footer-runtime"><code>Google GenAI</code> · <code>ADK</code> · <code>Parallel Track</code></div>
+  <!-- FOOTER -->
+  <footer class="site-footer">
+    <div class="footer-inner">
+      <div class="footer-brand">
+        <i class="hgi-stroke hgi-microphone-02"></i>
+        <strong>Qissa Studio</strong>
+        <span class="footer-dot">·</span>
+        <span>Serialized Audio Greenlight Desk</span>
+      </div>
+      <div class="footer-chips">
+        <span class="footer-chip"><i class="hgi-stroke hgi-google"></i> Google GenAI</span>
+        <span class="footer-chip"><i class="hgi-stroke hgi-cpu-02"></i> ADK</span>
+        <span class="footer-chip"><i class="hgi-stroke hgi-search-02"></i> Parallel Track</span>
+      </div>
     </div>
   </footer>
 
